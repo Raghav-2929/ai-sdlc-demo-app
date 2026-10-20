@@ -6,7 +6,8 @@ Run from `backend/tests/InvoiceApp.Tests` with `dotnet-stryker` (config: `stryke
 | --- | --- | ---: | ---: | ---: | ---: |
 | [baseline](baseline/) — original code and tests | `66cb3f9` (main) | 7 | **65.00%** (12 killed, 1 timeout, 7 survived) | 0.00% (2 survived) | **33.33%** |
 | [after-feature](after-feature/) — both rule slices and their tests | `f19a0cd` | 41 | 85.42% (41 killed, 7 survived) | 0.00% (2 survived) | 61.19% |
-| [after](after/) — after killing the survivors | this commit | 45 | **100.00%** (48 killed, 0 survived) | **100.00%** (2 killed) | **74.63%** |
+| [after](after/) — after killing the survivors | `ae795b6` | 45 | **100.00%** (48 killed, 0 survived) | **100.00%** (2 killed) | **74.63%** |
+| [final](final/) — after the code-review fixes and API tests | `b6112ac` | 53 | **100.00%** | **100.00%** | **74.63%** (gate: `break` 70) |
 
 `DiscountCalculator.cs` stays at 0% (17 mutants with no coverage): it has no tests in the original repo and is not part of this feature. It is the only reason the Domain total is below 100%; recorded as deferred work.
 

@@ -60,7 +60,7 @@ for (const session of sessions) {
     } else if (item.event === 'AssistantMessage' || item.event === 'Stop' || item.event === 'SubagentStop') {
       block(`**${time} · ${item.agent === 'main' ? 'Agent' : `Sub-agent \`${item.agent}\``}${item.outcome !== 'ok' ? ` (${item.outcome})` : ''}:** ${oneLine(item.summary)}`);
     } else if (item.event === 'SubagentStart') {
-      block(`**${time} · Delegated to \`${item.agent}\`:** ${oneLine(item.summary)}`);
+      block(`**${time} · Delegated to \`${item.agent}\`:** ${oneLine(item.detail || item.summary)}`);
     } else {
       const marker = item.outcome === 'ok' ? '' : ` **${item.outcome}**`;
       lines.push(`- ${time} · \`${item.agent}\` · ${item.event}${marker} · ${oneLine(item.summary)}`);
