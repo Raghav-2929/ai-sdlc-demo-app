@@ -1,0 +1,8 @@
+{
+  "stryker-config": {
+    "project": "InvoiceApp.Domain.csproj",
+    "mutation-level": "Standard",
+    "reporters": ["progress", "cleartext", "html", "json"],
+    "thresholds": { "high": 90, "low": 75, "break": 0 }
+  }
+}

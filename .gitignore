@@ -8,3 +8,6 @@ node_modules/
 .env
 test-results/
 playwright-report/
+
+# Stryker.NET mutation test output
+StrykerOutput/
