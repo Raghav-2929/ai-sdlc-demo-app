@@ -11,11 +11,20 @@ public class ApprovalServiceTests
     // so a wrong constant in production code cannot hide behind the same constant in a test.
     private static readonly Approver Manager = new("demo.manager", "Manager");
     private static readonly Approver Director = new("demo.director", "Director");
+    private static readonly Approver SecondDirector = new("demo.director2", "Director");
 
     private static Invoice InvoiceWith(string id, InvoiceStatus status, decimal amount = 100m) =>
         new() { Id = id, CustomerName = "Test School", Amount = amount, Status = status };
 
     private static Invoice PendingInvoice(decimal amount) => InvoiceWith("INV-1", InvoiceStatus.PendingApproval, amount);
+
+    private static Invoice InvoiceWithFirstApproval(decimal amount, string firstApprover)
+    {
+        var invoice = PendingInvoice(amount);
+        invoice.FirstApprovedBy = firstApprover;
+        invoice.FirstApprovedAt = new DateTime(2026, 10, 20, 9, 0, 0, DateTimeKind.Utc);
+        return invoice;
+    }
 
     private static ApprovalService ServiceFor(params Invoice[] invoices) =>
         new(new FakeInvoiceRepository(invoices));
@@ -191,19 +200,6 @@ public class ApprovalServiceTests
         Assert.Equal(1, repository.UpdateCount);
     }
 
-    // Interim behaviour until the two-approver rule ships: nobody can approve above 500,000.00.
-    [Fact]
-    [Trait("Rule", "AL-2")]
-    [Trait("Rule", "AL-5")]
-    public void Approve_DirectorOneCentAboveFiveHundredThousand_IsDeniedUntilTwoApproversAreSupported()
-    {
-        var denial = AssertDeniedAndUnchanged(PendingInvoice(500_000.01m), Director);
-
-        Assert.Equal(
-            "Invoice INV-1 is 500,000.01, which is above the Director limit of 500,000.00. Invoices above 500,000.00 need two approvers.",
-            denial.Message);
-    }
-
     [Theory]
     [Trait("Rule", "AL-6")]
     [Trait("Rule", "AL-5")]
@@ -220,6 +216,162 @@ public class ApprovalServiceTests
         Assert.Equal(
             $"someone has role '{role}', which cannot approve invoices. A Manager or Director must approve it.",
             denial.Message);
+    }
+
+    // ---- Above 500,000.00: two different people, the second a Director (AL-3, AL-4) ----
+
+    [Fact]
+    [Trait("Rule", "AL-3")]
+    public void Approve_DirectorFirstAboveFiveHundredThousand_RecordsFirstApprovalAndStaysPending()
+    {
+        var invoice = PendingInvoice(750_000m);
+        var repository = new FakeInvoiceRepository(invoice);
+        var before = DateTime.UtcNow;
+
+        var result = new ApprovalService(repository).Approve("INV-1", Director);
+
+        Assert.Equal(InvoiceStatus.PendingApproval, result.Status);
+        Assert.Equal("demo.director", result.FirstApprovedBy);
+        Assert.Equal(DateTimeKind.Utc, result.FirstApprovedAt!.Value.Kind);
+        Assert.InRange(result.FirstApprovedAt.Value, before, DateTime.UtcNow);
+        Assert.Null(result.DecidedBy);
+        Assert.Null(result.DecidedAt);
+        Assert.Null(result.DecisionNote);
+        Assert.Equal(new[] { "INV-1" }, repository.UpdatedIds);
+    }
+
+    [Fact]
+    [Trait("Rule", "AL-3")]
+    public void Approve_DifferentDirectorSecond_ApprovesAndKeepsTheFirstApproval()
+    {
+        var invoice = PendingInvoice(750_000m);
+        var repository = new FakeInvoiceRepository(invoice);
+        var service = new ApprovalService(repository);
+        service.Approve("INV-1", Director);
+
+        var result = service.Approve("INV-1", SecondDirector);
+
+        Assert.Equal(InvoiceStatus.Approved, result.Status);
+        Assert.Equal("demo.director2", result.DecidedBy);
+        Assert.NotNull(result.DecidedAt);
+        Assert.Equal("demo.director", result.FirstApprovedBy);
+        Assert.Equal(2, repository.UpdateCount);
+    }
+
+    // AL-3: the first approver may be a Manager, even though a Manager cannot give a final approval above 50,000.00.
+    [Fact]
+    [Trait("Rule", "AL-1")]
+    [Trait("Rule", "AL-3")]
+    public void Approve_ManagerFirstOneCentAboveFiveHundredThousandThenDirector_ApprovesTheInvoice()
+    {
+        var service = ServiceFor(PendingInvoice(500_000.01m));
+
+        var afterFirst = service.Approve("INV-1", Manager);
+        Assert.Equal(InvoiceStatus.PendingApproval, afterFirst.Status);
+        Assert.Equal("demo.manager", afterFirst.FirstApprovedBy);
+
+        var result = service.Approve("INV-1", Director);
+
+        Assert.Equal(InvoiceStatus.Approved, result.Status);
+        Assert.Equal("demo.director", result.DecidedBy);
+    }
+
+    // AL-2 + AL-3: one cent above the Director limit, a Director alone only gives the first approval.
+    [Fact]
+    [Trait("Rule", "AL-2")]
+    [Trait("Rule", "AL-3")]
+    public void Approve_DirectorAloneOneCentAboveFiveHundredThousand_OnlyRecordsTheFirstApproval()
+    {
+        var result = ServiceFor(PendingInvoice(500_000.01m)).Approve("INV-1", Director);
+
+        Assert.Equal(InvoiceStatus.PendingApproval, result.Status);
+        Assert.Equal("demo.director", result.FirstApprovedBy);
+        Assert.Null(result.DecidedBy);
+    }
+
+    [Fact]
+    [Trait("Rule", "AL-4")]
+    [Trait("Rule", "AL-5")]
+    public void Approve_SameDirectorTwice_IsDeniedWithReasonAndChangesNothing()
+    {
+        var denial = AssertDeniedAndUnchanged(InvoiceWithFirstApproval(750_000m, "demo.director"), Director);
+
+        Assert.Equal(
+            "demo.director already gave the first approval on invoice INV-1; a different person must give the second approval.",
+            denial.Message);
+    }
+
+    // AL-4: letter case and surrounding spaces do not make a different person, on either side.
+    [Theory]
+    [Trait("Rule", "AL-4")]
+    [Trait("Rule", "AL-5")]
+    [InlineData("demo.director", "Demo.Director")]
+    [InlineData("demo.director", "DEMO.DIRECTOR")]
+    [InlineData("demo.director", " demo.director ")]
+    [InlineData(" Demo.Director ", "demo.director")]
+    public void Approve_SamePersonWithDifferentCaseOrSpaces_IsDeniedAndChangesNothing(string firstApprover, string secondApprover)
+    {
+        var invoice = InvoiceWithFirstApproval(750_000m, firstApprover);
+
+        var denial = AssertDeniedAndUnchanged(invoice, new Approver(secondApprover, "Director"));
+
+        Assert.EndsWith("a different person must give the second approval.", denial.Message);
+    }
+
+    [Fact]
+    [Trait("Rule", "AL-3")]
+    [Trait("Rule", "AL-5")]
+    public void Approve_ManagerAsSecondApprover_IsDeniedWithReasonAndChangesNothing()
+    {
+        var denial = AssertDeniedAndUnchanged(InvoiceWithFirstApproval(750_000m, "demo.director"), Manager);
+
+        Assert.Equal(
+            "Invoice INV-1 is above 500,000.00, so the second approval must come from a Director; demo.manager is a Manager.",
+            denial.Message);
+    }
+
+    // FR-011: when the same Manager tries again, "same person" is the reason, not "must be a Director".
+    [Fact]
+    [Trait("Rule", "AL-4")]
+    [Trait("Rule", "AL-5")]
+    public void Approve_SameManagerTwice_IsDeniedAsTheSamePersonFirst()
+    {
+        var denial = AssertDeniedAndUnchanged(InvoiceWithFirstApproval(750_000m, "demo.manager"), Manager);
+
+        Assert.Equal(
+            "demo.manager already gave the first approval on invoice INV-1; a different person must give the second approval.",
+            denial.Message);
+    }
+
+    // AL-6: a role without a limit can give neither the first nor the second approval.
+    [Theory]
+    [Trait("Rule", "AL-6")]
+    [Trait("Rule", "AL-5")]
+    [InlineData(null, "Admin")]
+    [InlineData(null, "Auditor")]
+    [InlineData("demo.director", "Admin")]
+    [InlineData("demo.director", "Auditor")]
+    public void Approve_RoleWithoutLimitAboveFiveHundredThousand_IsDeniedAndChangesNothing(string? firstApprover, string role)
+    {
+        var invoice = firstApprover is null ? PendingInvoice(750_000m) : InvoiceWithFirstApproval(750_000m, firstApprover);
+
+        var denial = AssertDeniedAndUnchanged(invoice, new Approver("demo.admin", role));
+
+        Assert.Equal(
+            $"demo.admin has role '{role}', which cannot approve invoices. A Manager or Director must approve it.",
+            denial.Message);
+    }
+
+    // FR-009: rejecting after a first approval works and keeps the first-approval record as history.
+    [Fact]
+    public void Reject_AfterAFirstApproval_RejectsAndKeepsTheFirstApproval()
+    {
+        var result = ServiceFor(InvoiceWithFirstApproval(750_000m, "demo.director"))
+            .Reject("INV-1", "demo.director2", "Duplicate of INV-0999");
+
+        Assert.Equal(InvoiceStatus.Rejected, result.Status);
+        Assert.Equal("demo.director", result.FirstApprovedBy);
+        Assert.NotNull(result.FirstApprovedAt);
     }
 
     [Fact]

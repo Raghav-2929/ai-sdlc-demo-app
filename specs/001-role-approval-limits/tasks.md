@@ -80,22 +80,22 @@ description: "Task list for approval limits by role"
 
 ### Tests for User Story 2 (write first, see them fail)
 
-- [ ] T021 [US2] Extend the `InvoiceState` snapshot with FirstApprovedBy and FirstApprovedAt (analysis G1), so every refusal test also proves no first approval was written
-- [ ] T022 [US2] AL-3: Director first on 750,000.00 → PendingApproval, FirstApprovedBy/At set, DecidedBy/At and DecisionNote still null, UpdateCount 1
-- [ ] T023 [US2] AL-3: different Director second → Approved, DecidedBy = second, FirstApprovedBy kept, UpdateCount 2
-- [ ] T024 [US2] AL-3: Manager first at 500,000.01, then Director → Approved
-- [ ] T025 [US2] AL-4/AL-5: same Director twice → exact reason, unchanged; same name with case/space differences on either side (theory) → refused, unchanged
-- [ ] T026 [US2] AL-2/AL-3: Director alone at 500,000.01 only records the first approval (replaces interim T015)
-- [ ] T027 [US2] AL-3/AL-5: Manager as second approver after a different Director → exact reason, unchanged
-- [ ] T028 [US2] AL-4 precedence (FR-011): same Manager twice → "different person" reason, not "must be a Director"
-- [ ] T029 [US2] AL-6/AL-5: Admin/unknown as first or second approver above 500,000.00 → role reason, unchanged
-- [ ] T030 [US2] FR-009: reject after a first approval → Rejected, first-approval record kept
+- [x] T021 [US2] Extend the `InvoiceState` snapshot with FirstApprovedBy and FirstApprovedAt (analysis G1), so every refusal test also proves no first approval was written — done by design: the test snapshot serialises every public property, so the new fields are covered automatically (suggested by the test-author review)
+- [x] T022 [US2] AL-3: Director first on 750,000.00 → PendingApproval, FirstApprovedBy/At set, DecidedBy/At and DecisionNote still null, UpdateCount 1
+- [x] T023 [US2] AL-3: different Director second → Approved, DecidedBy = second, FirstApprovedBy kept, UpdateCount 2
+- [x] T024 [US2] AL-3: Manager first at 500,000.01, then Director → Approved
+- [x] T025 [US2] AL-4/AL-5: same Director twice → exact reason, unchanged; same name with case/space differences on either side (theory) → refused, unchanged
+- [x] T026 [US2] AL-2/AL-3: Director alone at 500,000.01 only records the first approval (replaces interim T015)
+- [x] T027 [US2] AL-3/AL-5: Manager as second approver after a different Director → exact reason, unchanged
+- [x] T028 [US2] AL-4 precedence (FR-011): same Manager twice → "different person" reason, not "must be a Director"
+- [x] T029 [US2] AL-6/AL-5: Admin/unknown as first or second approver above 500,000.00 → role reason, unchanged
+- [x] T030 [US2] FR-009: reject after a first approval → Rejected, first-approval record kept
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Add `FirstApprovedBy` and `FirstApprovedAt` to backend/src/InvoiceApp.Domain/Invoice.cs
-- [ ] T032 [US2] Two-approver path in `ApprovalService.Approve`: all checks before any assignment; `IsSamePerson` trimmed, OrdinalIgnoreCase; precedence role → same person → Director second
-- [ ] T033 [P] [US2] backend/src/InvoiceApp.Api/wwwroot/app.js + styles.css: in the pending list only, show "First approval by X · needs a second approval from a different Director"
+- [x] T031 [US2] Add `FirstApprovedBy` and `FirstApprovedAt` to backend/src/InvoiceApp.Domain/Invoice.cs
+- [x] T032 [US2] Two-approver path in `ApprovalService.Approve`: all checks before any assignment; `IsSamePerson` trimmed, OrdinalIgnoreCase; precedence role → same person → Director second
+- [x] T033 [P] [US2] backend/src/InvoiceApp.Api/wwwroot/app.js + styles.css: in the pending list only, show "First approval by X · needs a second approval from a different Director"
 
 **Checkpoint**: All tests green → commit `feat(approvals): require two distinct approvers above 500,000`.
 

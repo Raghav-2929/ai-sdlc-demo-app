@@ -72,8 +72,14 @@
       approve.addEventListener('click', () => decide(`/approvals/${invoice.id}/approve`, {}));
       reject.addEventListener('click', () => decide(`/approvals/${invoice.id}/reject`, { reason: reason.value }));
 
+      const summary = el('span', {}, `${invoice.id} · ${invoice.customerName} · ${money.format(invoice.amount)}`);
+      if (invoice.firstApprovedBy) {
+        summary.append(el('span', { class: 'awaiting-second' },
+          `First approval by ${invoice.firstApprovedBy} · needs a second approval from a different Director`));
+      }
+
       return el('li', {},
-        el('span', {}, `${invoice.id} · ${invoice.customerName} · ${money.format(invoice.amount)}`),
+        summary,
         el('span', {}, approve),
         el('div', { class: 'reject-row' }, reason, reject));
     }));
