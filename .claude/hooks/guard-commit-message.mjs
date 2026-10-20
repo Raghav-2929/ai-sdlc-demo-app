@@ -12,9 +12,12 @@ import { COMMIT_TEMPLATE, validateCommitMessage } from './lib/commit-format.mjs'
 const input = readHookInput();
 const command = input.tool_input?.command ?? '';
 
-const isCommit = /\bgit\s+(?:-[^\s]+\s+)*commit\b/.test(command);
-const reusesMessage = /--no-edit\b|--reuse-message\b|-C\s|--fixup\b/.test(command);
-if (!isCommit || reusesMessage) process.exit(0);
+// `git [-C <dir>] [-c <key=value>] [--global-flag] commit …`
+const commitCall = /\bgit(?:\s+(?:-[Cc]\s+(?:"[^"]*"|'[^']*'|\S+)|--?[\w-]+(?:=\S+)?))*\s+commit\b/.exec(command);
+if (!commitCall) process.exit(0);
+const commitArguments = command.slice(commitCall.index + commitCall[0].length);
+const reusesMessage = /--no-edit\b|--reuse-message\b|--reedit-message\b|\s-[cC]\s|--fixup\b|--squash\b/.test(` ${commitArguments}`);
+if (reusesMessage) process.exit(0);
 
 function extractMessage(text) {
   const heredoc = text.match(/<<-?\s*['"]?(\w+)['"]?\r?\n([\s\S]*?)\r?\n\s*\1\b/);
@@ -23,7 +26,7 @@ function extractMessage(text) {
   const hereString = text.match(/@(['"])\r?\n([\s\S]*?)\r?\n\1@/);
   if (hereString) return hereString[2];
 
-  const fileOption = text.match(/(?:-F|--file)(?:=|\s+)("([^"]+)"|'([^']+)'|(\S+))/);
+  const fileOption = text.match(/(?:\s-[a-zA-Z]*F|\s--file)(?:=|\s*)("([^"]+)"|'([^']+)'|(\S+))/);
   if (fileOption) {
     const path = fileOption[2] ?? fileOption[3] ?? fileOption[4];
     const fullPath = isAbsolute(path) ? path : join(input.cwd || process.cwd(), path);
@@ -34,12 +37,13 @@ function extractMessage(text) {
     }
   }
 
-  const messages = [...text.matchAll(/(?:\s-m|--message)(?:=|\s+)("((?:\\.|[^"\\])*)"|'([^']*)')/g)]
+  // -m, combined short flags such as -am, and --message
+  const messages = [...text.matchAll(/(?:\s-[a-zA-Z]*m|\s--message)(?:=|\s*)("((?:\\.|[^"\\])*)"|'([^']*)')/g)]
     .map((match) => (match[2] ?? match[3] ?? '').replace(/\\"/g, '"').replace(/\\n/g, '\n'));
   return messages.length ? messages.join('\n\n') : null;
 }
 
-const message = extractMessage(command);
+const message = extractMessage(` ${commitArguments}`);
 if (message === null) process.exit(0); // Message comes from an editor or a file we cannot read; the git commit-msg hook still checks it.
 
 const { ok, problems } = validateCommitMessage(message);

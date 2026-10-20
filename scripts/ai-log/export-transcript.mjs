@@ -102,13 +102,17 @@ const mainEntries = readJsonLines(transcriptPath);
 const sessionId = basename(transcriptPath, '.jsonl');
 let records = convert(mainEntries, 'main');
 
+// Repository agents (.claude/agents) that may be run through a generic agent type; the description names the role.
+const REPO_AGENTS = ['feature-orchestrator', 'spec-writer', 'domain-implementer', 'test-author', 'e2e-author', 'mutation-analyst', 'code-reviewer'];
+
 const subagentDir = join(dirname(transcriptPath), sessionId, 'subagents');
 if (existsSync(subagentDir)) {
   for (const file of readdirSync(subagentDir).filter((name) => /^agent-.*\.jsonl$/.test(name))) {
     const metaPath = join(subagentDir, file.replace(/\.jsonl$/, '.meta.json'));
     let agentType = 'subagent';
     try {
-      agentType = JSON.parse(readFileSync(metaPath, 'utf8')).agentType || agentType;
+      const meta = JSON.parse(readFileSync(metaPath, 'utf8'));
+      agentType = REPO_AGENTS.find((name) => (meta.description || '').includes(name)) || meta.agentType || agentType;
     } catch {
       // Keep the generic name.
     }
@@ -122,6 +126,11 @@ if (label) {
   records.unshift(buildLogRecord({ input: { session_id: sessionId }, event: 'SessionStart', actor: 'system', source: 'transcript-export', timestamp: records[0]?.ts, summary: label }));
 }
 
+// Re-running the export appends only what is new, so a session can be exported again as it grows.
+const identity = (item) => [item.session_id, item.ts, item.event, item.agent, item.tool, item.summary].join('|');
+const alreadyLogged = new Set(existsSync(outPath) ? readJsonLines(outPath).map(identity) : []);
+const newRecords = records.filter((item) => !alreadyLogged.has(identity(item)));
+
 mkdirSync(dirname(outPath), { recursive: true });
-appendFileSync(outPath, records.map((item) => JSON.stringify(item)).join('\n') + (records.length ? '\n' : ''), 'utf8');
-console.log(`Exported ${records.length} records from ${sessionId} to ${outPath}`);
+appendFileSync(outPath, newRecords.map((item) => JSON.stringify(item)).join('\n') + (newRecords.length ? '\n' : ''), 'utf8');
+console.log(`Exported ${newRecords.length} new records (${records.length - newRecords.length} already logged) from ${sessionId} to ${outPath}`);

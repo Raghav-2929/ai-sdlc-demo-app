@@ -4,7 +4,7 @@
 // SubagentStop, Stop, PreCompact and SessionEnd in .claude/settings.json.
 // It only observes: it always exits 0 and never changes what the agent does.
 
-import { appendLog, buildLogRecord, describeToolInput, readHookInput } from './lib/common.mjs';
+import { appendLog, buildLogRecord, describeToolInput, readHookInput, safeJson } from './lib/common.mjs';
 
 const input = readHookInput();
 const event = input.hook_event_name || process.argv[2] || 'Unknown';
@@ -17,7 +17,7 @@ function summarizeToolResponse(response) {
     return [response.stdout, response.stderr].filter(Boolean).join('\n');
   }
   if (response.filePath || response.file_path) return `file: ${response.filePath || response.file_path}`;
-  return JSON.stringify(response);
+  return safeJson(response);
 }
 
 function recordFor() {
@@ -49,7 +49,7 @@ function recordFor() {
     case 'SessionEnd':
       return buildLogRecord({ input, event, actor: 'system', agent, summary: `Session ended (${input.reason || 'unknown'})` });
     default:
-      return buildLogRecord({ input, event, actor: 'system', agent, summary: event, detail: JSON.stringify(input) });
+      return buildLogRecord({ input, event, actor: 'system', agent, summary: event, detail: safeJson(input) });
   }
 }
 

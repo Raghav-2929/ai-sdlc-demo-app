@@ -43,9 +43,12 @@ const SECRET_PATTERNS = [
   [/\b(sk-[A-Za-z0-9_-]{20,})/g, '[REDACTED_API_KEY]'],
   [/\b(AKIA[0-9A-Z]{16})\b/g, '[REDACTED_AWS_KEY]'],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, '[REDACTED_PRIVATE_KEY]'],
-  [/("?(?:password|passwd|pwd|secret|token|api[_-]?key|client[_-]?secret)"?\s*[:=]\s*)("[^"]*"|'[^']*'|[^\s,;}]+)/gi, '$1"[REDACTED]"'],
+  // key: value / key = value, also when the quotes are JSON-escaped (\"Password\": \"…\").
+  [/((?:\\?")?(?:password|passwd|pwd|secret|token|api[_-]?key|client[_-]?secret)(?:\\?")?\s*[:=]\s*)(\\"(?:[^"\\]|\\(?!"))*\\"|"[^"]*"|'[^']*'|[^\s,;}]+)/gi, '$1"[REDACTED]"'],
   [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]'],
 ];
+
+const SECRET_KEY = /password|passwd|pwd|secret|token|api[_-]?key|authorization/i;
 
 /** Masks anything that looks like a credential or an email address before it reaches the log. */
 export function redact(text) {
@@ -55,6 +58,18 @@ export function redact(text) {
     result = result.replace(pattern, replacement);
   }
   return result;
+}
+
+/**
+ * JSON.stringify that masks before serialising: values under secret-looking keys are replaced, and every
+ * other string is passed through redact(). Serialising first would escape the quotes and hide secrets
+ * from the patterns above.
+ */
+export function safeJson(value) {
+  return JSON.stringify(value, (key, item) => {
+    if (typeof item !== 'string') return item;
+    return SECRET_KEY.test(key) ? '[REDACTED]' : redact(item);
+  });
 }
 
 export function truncate(text, maxLength) {
@@ -119,7 +134,7 @@ export function describeToolInput(toolName, toolInput = {}) {
     case 'WebSearch':
       return toolInput.url ?? toolInput.query ?? '';
     default:
-      return JSON.stringify(toolInput);
+      return safeJson(toolInput);
   }
 }
 
