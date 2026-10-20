@@ -107,8 +107,8 @@ description: "Task list for approval limits by role"
 
 **Independent Test**: `cd e2e && npm test`
 
-- [ ] T034 [P] [US3] Page objects e2e/pages/LoginPage.ts, e2e/pages/InvoicesPage.ts, e2e/pages/ApprovalsPage.ts (role-based locators only)
-- [ ] T035 [US3] Playwright test e2e/tests/over-limit-approval.spec.ts: Manager approves a 75,000.00 invoice → alert shows the exact Manager-limit reason, the invoice is still Pending Approval
+- [x] T034 [P] [US3] Page objects e2e/pages/LoginPage.ts, e2e/pages/InvoicesPage.ts, e2e/pages/ApprovalsPage.ts (role-based locators only)
+- [x] T035 [US3] Playwright test e2e/tests/over-limit-approval.spec.ts: Manager approves a 75,000.00 invoice → alert shows the exact Manager-limit reason, the invoice is still Pending Approval
 
 **Checkpoint**: `npm test` → 1 passed → commit `test(e2e): prove an over-limit approval is refused in the UI`.
 
