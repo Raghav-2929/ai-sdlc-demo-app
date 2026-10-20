@@ -117,7 +117,8 @@ description: "Task list for approval limits by role"
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 - [x] T036 Run Stryker after the feature; record docs/mutation/after/ with per-file scores for every changed domain file (ApprovalService.cs ≥ baseline 65.00%, new decision code ≥ 75%); kill or explain survivors
-- [ ] T037 Run the `code-reviewer` sub-agent on the branch diff; fix, dismiss or defer every finding with a reason
+- [x] T037 Run the `code-reviewer` sub-agent on the branch diff; fix, dismiss or defer every finding with a reason
+- [x] T041 [P] From the review: API tests for the approvals HTTP contract in backend/tests/InvoiceApp.Tests/ApprovalsControllerTests.cs (WebApplicationFactory)
 - [ ] T038 [P] Write docs/PR_DESCRIPTION.md: summary, clarifications Q1–Q5 for the product owner, known limitations (concurrency, sub-cent amounts), review findings with verdicts
 - [ ] T039 [P] Write ASSIGNMENT.md (write-up, mutation scores before/after as text, verdicts, video link)
 - [ ] T040 [P] Export the AI interaction log and render ai-logs/AI_INTERACTIONS.md

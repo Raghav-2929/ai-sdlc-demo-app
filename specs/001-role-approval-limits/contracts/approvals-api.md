@@ -48,6 +48,6 @@ Shown in precedence order (FR-011): the first that applies wins.
 }
 ```
 
-## Accepted risk
+## How this contract is tested
 
-The HTTP layer has no automated contract tests beyond the one Playwright journey: adding an API test project would add a package (Constitution: needs a written reason) and the brief asks for one end-to-end test. The 403 body, 404/409 mapping and session identity are checked with the `curl` steps in [quickstart.md](../quickstart.md).
+`backend/tests/InvoiceApp.Tests/ApprovalsControllerTests.cs` runs the API in memory (`WebApplicationFactory<Program>`) and checks: 403 with the AL-6 and AL-1 reasons and the invoice unchanged when read back; identity from the session even when the body claims another user (FR-007); the two-approver flow; 409 / 404; Admin can still reject; 401 without sign-in. Added after the code review (research R11); the `curl` steps in [quickstart.md](../quickstart.md) remain for manual checks.

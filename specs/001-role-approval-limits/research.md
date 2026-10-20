@@ -60,6 +60,7 @@ Phase 0 of `/speckit-plan`. Each decision lists what was chosen, why, and what e
 - **Decision**: Exactly one Playwright test, for AL-1 + AL-5 through the UI (the brief's requirement). AL-3, AL-4 and AL-6 reasons are verified at unit level and by the manual steps in quickstart.md; the 403 body is checked with curl.
 - **Rationale**: `/speckit-analyze` findings C4 and G5. The constitution's "a user-visible rule has one end-to-end test" is read as "the feature's user-visible refusal has one", matching the brief's "one Playwright test". An API test project would add a package for one feature.
 - **Accepted risk**: a regression in controller-to-domain wiring for AL-3/AL-4/AL-6 would be caught only by the quickstart, not by CI.
+- **Update after the code review**: the `code-reviewer` showed the risk was real (hard-coding the role in the controller, or deleting the 403 mapping, passed every test). `ApprovalsControllerTests` now runs the API in memory with `Microsoft.AspNetCore.Mvc.Testing` 8.0.32 — the one new package, justified by closing that gap (Constitution: "no new dependencies without a written reason"). Both breaks now fail 3–4 tests. Still exactly one Playwright test.
 
 ## R9. End-to-end proof
 
