@@ -92,6 +92,8 @@
       await refresh();
     } catch (error) {
       showError('decision-error', error.message);
+      // Someone else may have acted on the invoice; show the queue as it is now so the reason makes sense.
+      await refresh().catch(() => {});
     }
   }
 

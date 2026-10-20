@@ -23,7 +23,7 @@ Shown in precedence order (FR-011): the first that applies wins.
 | Rule | Reason |
 | --- | --- |
 | AL-6 role cannot approve | `demo.admin has role 'Admin', which cannot approve invoices. A Manager or Director must approve it.` |
-| AL-4 same person | `demo.director already gave the first approval on invoice INV-1007; a different person must give the second approval.` |
+| AL-4 same person | `demo.director already gave the first approval on invoice INV-1007; a different Director must give the second approval.` |
 | AL-3 second not a Director | `Invoice INV-1007 is above 500,000.00, so the second approval must come from a Director; demo.manager is a Manager.` |
 | AL-1 over the Manager limit | `Invoice INV-1006 is 75,000.00, which is above the Manager limit of 50,000.00. A Director must approve it.` |
 | Interim, US1 only (above 500,000.00) | `Invoice INV-1007 is 750,000.00, which is above the Director limit of 500,000.00. Invoices above 500,000.00 need two approvers.` |

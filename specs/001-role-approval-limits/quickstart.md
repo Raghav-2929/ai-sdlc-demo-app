@@ -32,7 +32,7 @@ Open http://localhost:5000. Demo accounts (not real credentials) are in `AGENTS.
 | 2 | `demo.director` | Approve the same invoice | Approved |
 | 3 | `demo.admin` | Create and submit a 100 invoice, Approve | Red message: role 'Admin' cannot approve invoices |
 | 4 | `demo.director` | Create and submit a 750,000 invoice, Approve | Still pending; queue shows "First approval by demo.director · needs a second approval from a different Director" |
-| 5 | `demo.director` | Approve it again | Refused: a different person must give the second approval |
+| 5 | `demo.director` | Approve it again | Refused: a different Director must give the second approval |
 | 6 | `demo.manager` | Approve it | Refused: the second approval must come from a Director |
 | 7 | `demo.director2` | Approve it | Approved |
 

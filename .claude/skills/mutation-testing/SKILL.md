@@ -26,7 +26,7 @@ dotnet-stryker                       # uses stryker-config.json in this folder
 dotnet-stryker --open-report         # same, and opens the HTML report while it runs
 ```
 
-`stryker-config.json` mutates `InvoiceApp.Domain` and writes HTML, JSON and a clear-text table to `StrykerOutput/<timestamp>/reports/` (git-ignored). A full run takes about a minute.
+`stryker-config.json` mutates `InvoiceApp.Domain` and writes HTML, JSON and a clear-text table to `StrykerOutput/<timestamp>/reports/` (git-ignored). A full run takes about a minute. The `break` threshold is 70: the run exits non-zero if the Domain score falls below 70% (it is 74.63% today; the baseline was 33.33%).
 
 ## Read the result
 

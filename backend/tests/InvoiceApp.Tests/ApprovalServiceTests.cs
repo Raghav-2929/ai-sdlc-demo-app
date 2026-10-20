@@ -155,11 +155,13 @@ public class ApprovalServiceTests
     public void Approve_AmountBetweenTheLimits_IsDeniedForManagerAndApprovedByDirector()
     {
         var invoice = PendingInvoice(120_000m);
-        var service = ServiceFor(invoice);
 
-        Assert.Throws<ApprovalDeniedException>(() => service.Approve("INV-1", Manager));
-        Assert.Equal(InvoiceStatus.PendingApproval, invoice.Status);
-        var result = service.Approve("INV-1", Director);
+        var denial = AssertDeniedAndUnchanged(invoice, Manager);
+        Assert.Equal(
+            "Invoice INV-1 is 120,000.00, which is above the Manager limit of 50,000.00. A Director must approve it.",
+            denial.Message);
+
+        var result = ServiceFor(invoice).Approve("INV-1", Director);
 
         Assert.Equal(InvoiceStatus.Approved, result.Status);
         Assert.Equal("demo.director", result.DecidedBy);
@@ -258,7 +260,7 @@ public class ApprovalServiceTests
         var invoice = PendingInvoice(750_000m);
         var repository = new FakeInvoiceRepository(invoice);
         var service = new ApprovalService(repository);
-        service.Approve("INV-1", Director);
+        var firstApprovedAt = service.Approve("INV-1", Director).FirstApprovedAt;
 
         var result = service.Approve("INV-1", SecondDirector);
 
@@ -266,6 +268,7 @@ public class ApprovalServiceTests
         Assert.Equal("demo.director2", result.DecidedBy);
         Assert.NotNull(result.DecidedAt);
         Assert.Equal("demo.director", result.FirstApprovedBy);
+        Assert.Equal(firstApprovedAt, result.FirstApprovedAt);
         Assert.Equal(2, repository.UpdateCount);
     }
 
@@ -308,7 +311,7 @@ public class ApprovalServiceTests
         var denial = AssertDeniedAndUnchanged(InvoiceWithFirstApproval(750_000m, "demo.director"), Director);
 
         Assert.Equal(
-            "demo.director already gave the first approval on invoice INV-1; a different person must give the second approval.",
+            "demo.director already gave the first approval on invoice INV-1; a different Director must give the second approval.",
             denial.Message);
     }
 
@@ -326,7 +329,7 @@ public class ApprovalServiceTests
 
         var denial = AssertDeniedAndUnchanged(invoice, new Approver(secondApprover, "Director"));
 
-        Assert.EndsWith("a different person must give the second approval.", denial.Message);
+        Assert.EndsWith("a different Director must give the second approval.", denial.Message);
     }
 
     [Fact]
@@ -350,7 +353,7 @@ public class ApprovalServiceTests
         var denial = AssertDeniedAndUnchanged(InvoiceWithFirstApproval(750_000m, "demo.manager"), Manager);
 
         Assert.Equal(
-            "demo.manager already gave the first approval on invoice INV-1; a different person must give the second approval.",
+            "demo.manager already gave the first approval on invoice INV-1; a different Director must give the second approval.",
             denial.Message);
     }
 
@@ -362,6 +365,7 @@ public class ApprovalServiceTests
     [InlineData(null, "Auditor")]
     [InlineData("demo.director", "Admin")]
     [InlineData("demo.director", "Auditor")]
+    [InlineData("demo.admin", "Admin")] // FR-011: the role reason wins over "same person"
     public void Approve_RoleWithoutLimitAboveFiveHundredThousand_IsDeniedAndChangesNothing(string? firstApprover, string role)
     {
         var invoice = firstApprover is null ? PendingInvoice(750_000m) : InvoiceWithFirstApproval(750_000m, firstApprover);

@@ -40,7 +40,7 @@ Clarifications recorded in the spec: the first approver above 500,000 may be a M
 
 - Over a limit: `... is above the Manager limit of 50,000.00 ...`
 - No authority: `... role 'Admin', which cannot approve invoices. A Manager or Director must approve it.`
-- Same user: `... already gave the first approval ... a different person must give the second approval.`
+- Same user: `... already gave the first approval ... a different Director must give the second approval.`
 - Second approver not a Director: `... the second approval must come from a Director ...`
 
 ## Test matrix (each row is at least one test in `ApprovalServiceTests`)

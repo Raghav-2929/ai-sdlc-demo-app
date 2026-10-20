@@ -74,7 +74,7 @@ Requires the .NET 8 SDK and Node 20+.
 - Every rule has a positive and a negative test at its boundary (50,000.00 allowed, 50,000.01 denied). Names follow `Method_Scenario_ExpectedResult`.
 - A denial test asserts the **reason text** and that **nothing changed**: every invoice field, and the fake repository's update count.
 - Review every generated test: name the bug it would catch. A test that still passes with the rule deleted is removed or fixed.
-- Mutation score on `ApprovalService.cs` never drops below the recorded baseline (`docs/mutation/baseline`, 65.00%). Surviving mutants in changed code are killed or explained.
+- Mutation score on `ApprovalService.cs` never drops below the recorded baseline (`docs/mutation/baseline`, 65.00%; it is 100% now), and Stryker fails the run below 70% for the Domain project (`break` in `stryker-config.json`). Surviving mutants in changed code are killed or explained.
 - A user-visible rule gets one Playwright test through the UI.
 
 ## Workflow for a feature

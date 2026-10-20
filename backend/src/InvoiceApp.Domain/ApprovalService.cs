@@ -109,7 +109,7 @@ public class ApprovalService
         if (IsSamePerson(invoice.FirstApprovedBy!, approver.Username))
         {
             throw new ApprovalDeniedException(
-                $"{approver.Username} already gave the first approval on invoice {invoice.Id}; a different person must give the second approval.");
+                $"{approver.Username} already gave the first approval on invoice {invoice.Id}; a different Director must give the second approval.");
         }
 
         if (approver.Role != ApprovalLimits.DirectorRole)

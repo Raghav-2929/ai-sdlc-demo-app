@@ -24,8 +24,11 @@ test('a Manager cannot approve an invoice above 50,000, sees why, and the invoic
   await expect(approvals.decisionMessage).toHaveText(
     /is 75,000\.00, which is above the Manager limit of 50,000\.00\. A Director must approve it\./,
   );
-  await expect(approvals.pendingItemFor(customerName)).toBeVisible();
 
-  await invoices.open();
+  // Read the invoice back from the server, not from the screen as it was before the click:
+  // "nothing changes" must hold in the data, not only in the page.
+  await invoices.reloadFromServer();
   await expect(invoices.statusOf(customerName)).toHaveText('Pending Approval');
+  await approvals.open();
+  await expect(approvals.pendingItemFor(customerName)).toBeVisible();
 });

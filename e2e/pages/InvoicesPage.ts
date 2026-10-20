@@ -13,6 +13,12 @@ export class InvoicesPage {
     await expect(this.panel).toBeVisible();
   }
 
+  /** Reloads the page so everything shown is read again from the server (the session survives the reload). */
+  async reloadFromServer() {
+    await this.page.reload();
+    await expect(this.panel).toBeVisible();
+  }
+
   async create(customerName: string, amount: string) {
     await this.panel.getByLabel('Customer name').fill(customerName);
     await this.panel.getByLabel('Amount').fill(amount);
