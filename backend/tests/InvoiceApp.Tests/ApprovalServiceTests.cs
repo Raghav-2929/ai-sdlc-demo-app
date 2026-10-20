@@ -51,17 +51,26 @@ public class ApprovalServiceTests
     {
         var invoice = InvoiceWith("INV-1", InvoiceStatus.Draft);
 
-        var result = ServiceFor(invoice).Submit("INV-1");
+        var repository = new FakeInvoiceRepository(invoice);
+
+        var result = new ApprovalService(repository).Submit("INV-1");
 
         Assert.Equal(InvoiceStatus.PendingApproval, result.Status);
+        Assert.Equal(new[] { "INV-1" }, repository.UpdatedIds);
     }
 
     [Fact]
-    public void Submit_RejectsInvoiceThatIsNotADraft()
+    public void Submit_RejectsInvoiceThatIsNotADraftWithItsStatusAndChangesNothing()
     {
-        var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.Approved));
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.Approved);
+        var repository = new FakeInvoiceRepository(invoice);
+        var before = Snapshot(invoice);
 
-        Assert.Throws<InvalidOperationException>(() => service.Submit("INV-1"));
+        var error = Assert.Throws<InvalidOperationException>(() => new ApprovalService(repository).Submit("INV-1"));
+
+        Assert.Equal("Invoice INV-1 is Approved; only drafts can be submitted.", error.Message);
+        Assert.Equal(before, Snapshot(invoice));
+        Assert.Equal(0, repository.UpdateCount);
     }
 
     [Fact]
@@ -105,7 +114,9 @@ public class ApprovalServiceTests
     {
         var service = ServiceFor();
 
-        Assert.Throws<KeyNotFoundException>(() => service.Approve("INV-404", Manager));
+        var error = Assert.Throws<KeyNotFoundException>(() => service.Approve("INV-404", Manager));
+
+        Assert.Equal("Invoice INV-404 was not found.", error.Message);
     }
 
     [Fact]
@@ -395,7 +406,9 @@ public class ApprovalServiceTests
         var repository = new FakeInvoiceRepository(invoice);
         var before = Snapshot(invoice);
 
-        Assert.Throws<ArgumentException>(() => new ApprovalService(repository).Approve("INV-1", new Approver(username, "Manager")));
+        var error = Assert.Throws<ArgumentException>(() => new ApprovalService(repository).Approve("INV-1", new Approver(username, "Manager")));
+
+        Assert.StartsWith("An approver name is required to approve an invoice.", error.Message);
 
         Assert.Equal(before, Snapshot(invoice));
         Assert.Equal(0, repository.UpdateCount);
@@ -404,12 +417,35 @@ public class ApprovalServiceTests
     [Fact]
     public void Reject_RecordsReasonAndApprover()
     {
-        var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
+        var repository = new FakeInvoiceRepository(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
+        var before = DateTime.UtcNow;
 
-        var result = service.Reject("INV-1", "demo.manager", "Duplicate invoice");
+        var result = new ApprovalService(repository).Reject("INV-1", "demo.manager", "Duplicate invoice");
 
         Assert.Equal(InvoiceStatus.Rejected, result.Status);
         Assert.Equal("Duplicate invoice", result.DecisionNote);
+        Assert.Equal("demo.manager", result.DecidedBy);
+        Assert.InRange(result.DecidedAt!.Value, before, DateTime.UtcNow);
+        Assert.Equal(new[] { "INV-1" }, repository.UpdatedIds);
+    }
+
+    // Survivor in the baseline and after the feature: Reject never checked that the invoice is still pending.
+    [Theory]
+    [InlineData(InvoiceStatus.Draft)]
+    [InlineData(InvoiceStatus.Approved)]
+    [InlineData(InvoiceStatus.Rejected)]
+    public void Reject_InvoiceThatIsNotPending_IsRefusedWithItsStatusAndChangesNothing(InvoiceStatus status)
+    {
+        var invoice = InvoiceWith("INV-1", status);
+        var repository = new FakeInvoiceRepository(invoice);
+        var before = Snapshot(invoice);
+
+        var error = Assert.Throws<InvalidOperationException>(
+            () => new ApprovalService(repository).Reject("INV-1", "demo.manager", "Duplicate invoice"));
+
+        Assert.Equal($"Invoice INV-1 is {status}; only pending invoices can be decided.", error.Message);
+        Assert.Equal(before, Snapshot(invoice));
+        Assert.Equal(0, repository.UpdateCount);
     }
 
     // FR-009: approval limits do not apply to rejecting.
@@ -425,8 +461,14 @@ public class ApprovalServiceTests
     [Fact]
     public void Reject_RequiresAReason()
     {
-        var service = ServiceFor(InvoiceWith("INV-1", InvoiceStatus.PendingApproval));
+        var invoice = InvoiceWith("INV-1", InvoiceStatus.PendingApproval);
+        var repository = new FakeInvoiceRepository(invoice);
+        var before = Snapshot(invoice);
 
-        Assert.Throws<ArgumentException>(() => service.Reject("INV-1", "demo.manager", "  "));
+        var error = Assert.Throws<ArgumentException>(() => new ApprovalService(repository).Reject("INV-1", "demo.manager", "  "));
+
+        Assert.StartsWith("A reason is required to reject an invoice.", error.Message);
+        Assert.Equal(before, Snapshot(invoice));
+        Assert.Equal(0, repository.UpdateCount);
     }
 }
