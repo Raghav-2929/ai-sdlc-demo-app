@@ -1,8 +1,11 @@
+using System.Globalization;
+
 namespace InvoiceApp.Domain;
 
 /// <summary>
 /// Moves an invoice through its lifecycle: Draft -> PendingApproval -> Approved or Rejected.
-/// One invoice at a time, decided as a whole by a single approver.
+/// Approvals are limited by the approver's role (see ApprovalLimits). Every rule is checked
+/// before anything on the invoice is assigned, so a refused approval changes nothing.
 /// </summary>
 public class ApprovalService
 {
@@ -28,13 +31,20 @@ public class ApprovalService
         return invoice;
     }
 
-    public Invoice Approve(string invoiceId, string approver)
+    public Invoice Approve(string invoiceId, Approver approver)
     {
+        ArgumentNullException.ThrowIfNull(approver);
+        if (string.IsNullOrWhiteSpace(approver.Username))
+        {
+            throw new ArgumentException("An approver name is required to approve an invoice.", nameof(approver));
+        }
+
         var invoice = Find(invoiceId);
         EnsurePending(invoice);
+        EnsureWithinLimit(invoice, approver);
 
         invoice.Status = InvoiceStatus.Approved;
-        invoice.DecidedBy = approver;
+        invoice.DecidedBy = approver.Username;
         invoice.DecidedAt = DateTime.UtcNow;
         _repository.Update(invoice);
         return invoice;
@@ -70,4 +80,22 @@ public class ApprovalService
                 $"Invoice {invoice.Id} is {invoice.Status}; only pending invoices can be decided.");
         }
     }
+
+    private static void EnsureWithinLimit(Invoice invoice, Approver approver)
+    {
+        var limit = ApprovalLimits.LimitFor(approver.Role)
+            ?? throw new ApprovalDeniedException(
+                $"{approver.Username} has role '{approver.Role}', which cannot approve invoices. A Manager or Director must approve it.");
+
+        if (invoice.Amount > limit)
+        {
+            var whoCanApprove = invoice.Amount <= ApprovalLimits.DirectorLimit
+                ? "A Director must approve it."
+                : $"Invoices above {Money(ApprovalLimits.DirectorLimit)} need two approvers.";
+            throw new ApprovalDeniedException(
+                $"Invoice {invoice.Id} is {Money(invoice.Amount)}, which is above the {approver.Role} limit of {Money(limit)}. {whoCanApprove}");
+        }
+    }
+
+    private static string Money(decimal amount) => amount.ToString("N2", CultureInfo.InvariantCulture);
 }

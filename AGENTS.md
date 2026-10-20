@@ -124,8 +124,10 @@ GitHub Copilot reads this file, `.claude/skills/` and `.claude/agents/` too; `.g
 
 ## Demo accounts (not real credentials)
 
-- `demo.approver` / `ChangeMe123!` (role Approver)
-- `demo.admin` / `ChangeMe123!` (role Admin)
+- `demo.manager` / `ChangeMe123!` (role Manager)
+- `demo.director` / `ChangeMe123!` (role Director)
+- `demo.director2` / `ChangeMe123!` (role Director; the second, different Director for invoices above 500,000)
+- `demo.admin` / `ChangeMe123!` (role Admin; can reject and delete, cannot approve)
 
 ## Never
 

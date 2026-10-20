@@ -34,11 +34,11 @@ description: "Task list for approval limits by role"
 
 **Purpose**: The types and test support both rule sets need. Lands in the US1 commit.
 
-- [ ] T004 [P] Add `record Approver(string Username, string Role)` in backend/src/InvoiceApp.Domain/Approver.cs
-- [ ] T005 [P] Add `ApprovalDeniedException : InvalidOperationException` in backend/src/InvoiceApp.Domain/ApprovalDeniedException.cs
-- [ ] T006 [P] Add `ApprovalLimits` (ManagerRole, DirectorRole, ManagerLimit 50_000m, DirectorLimit 500_000m, `LimitFor(role)` exact match, null for any other role; DirectorLimit is also the two-approver threshold) in backend/src/InvoiceApp.Domain/ApprovalLimits.cs
-- [ ] T007 Map `ApprovalDeniedException` to 403 `{ error }` before the `InvalidOperationException` catch in backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs
-- [ ] T008 [P] Add `UpdateCount` to backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs, keeping shared-reference semantics (research R7)
+- [x] T004 [P] Add `record Approver(string Username, string Role)` in backend/src/InvoiceApp.Domain/Approver.cs
+- [x] T005 [P] Add `ApprovalDeniedException : InvalidOperationException` in backend/src/InvoiceApp.Domain/ApprovalDeniedException.cs
+- [x] T006 [P] Add `ApprovalLimits` (ManagerRole, DirectorRole, ManagerLimit 50_000m, DirectorLimit 500_000m, `LimitFor(role)` exact match, null for any other role; DirectorLimit is also the two-approver threshold) in backend/src/InvoiceApp.Domain/ApprovalLimits.cs
+- [x] T007 Map `ApprovalDeniedException` to 403 `{ error }` before the `InvalidOperationException` catch in backend/src/InvoiceApp.Api/Controllers/ApiControllerBase.cs
+- [x] T008 [P] Add `UpdateCount` to backend/tests/InvoiceApp.Tests/FakeInvoiceRepository.cs, keeping shared-reference semantics (research R7)
 
 **Checkpoint**: Solution builds; existing 7 tests still pass.
 
@@ -52,21 +52,21 @@ description: "Task list for approval limits by role"
 
 ### Tests for User Story 1 (write first, see them fail)
 
-- [ ] T009 [US1] Update existing approve tests to pass an `Approver`; assert the not-pending reason text and that nothing changed in backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs
-- [ ] T010 [US1] AL-1: Manager approves exactly 50,000.00 → Approved, DecidedBy = manager, UpdateCount 1
-- [ ] T011 [US1] AL-1/AL-5: Manager at 50,000.01 → refused, exact reason, every field unchanged, UpdateCount 0
-- [ ] T012 [US1] AL-1/AL-2: 120,000.00 refused for Manager, approved by Director
-- [ ] T013 [US1] AL-1/AL-2: 500,000.00 refused for Manager; approved by a Director alone
-- [ ] T014 [US1] AL-6/AL-5: Admin, retired Approver, unknown and empty roles refused with "cannot approve invoices. A Manager or Director must approve it."; unchanged
-- [ ] T015 [US1] Interim: a Director at 500,000.01 is refused with "need two approvers" and nothing changes (replaced in US2 by T026)
-- [ ] T016 [US1] Null approver → ArgumentNullException; blank username → ArgumentException; both change nothing
-- [ ] T017 [US1] FR-009: a Manager can reject a 750,000.00 invoice (limits do not apply to rejecting)
+- [x] T009 [US1] Update existing approve tests to pass an `Approver`; assert the not-pending reason text and that nothing changed in backend/tests/InvoiceApp.Tests/ApprovalServiceTests.cs
+- [x] T010 [US1] AL-1: Manager approves exactly 50,000.00 → Approved, DecidedBy = manager, UpdateCount 1
+- [x] T011 [US1] AL-1/AL-5: Manager at 50,000.01 → refused, exact reason, every field unchanged, UpdateCount 0
+- [x] T012 [US1] AL-1/AL-2: 120,000.00 refused for Manager, approved by Director
+- [x] T013 [US1] AL-1/AL-2: 500,000.00 refused for Manager; approved by a Director alone
+- [x] T014 [US1] AL-6/AL-5: Admin, retired Approver, unknown and empty roles refused with "cannot approve invoices. A Manager or Director must approve it."; unchanged
+- [x] T015 [US1] Interim: a Director at 500,000.01 is refused with "need two approvers" and nothing changes (replaced in US2 by T026)
+- [x] T016 [US1] Null approver → ArgumentNullException; blank username → ArgumentException; both change nothing
+- [x] T017 [US1] FR-009: a Manager can reject a 750,000.00 invoice (limits do not apply to rejecting)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] `ApprovalService.Approve(string invoiceId, Approver approver)`: argument → find → pending → role limit → amount; reasons per contracts/approvals-api.md; money "N2" invariant
-- [ ] T019 [US1] backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs: pass `new Approver(session.Username, session.Role)`; no role filter on Approve; `[RequireRole("Manager", "Director", "Admin")]` on Reject only
-- [ ] T020 [US1] Demo users demo.manager, demo.director, demo.director2, demo.admin in backend/src/InvoiceApp.Api/appsettings.json; seed `DecidedBy` demo.approver → demo.manager in InMemoryInvoiceRepository.cs; demo accounts in README.md and AGENTS.md
+- [x] T018 [US1] `ApprovalService.Approve(string invoiceId, Approver approver)`: argument → find → pending → role limit → amount; reasons per contracts/approvals-api.md; money "N2" invariant
+- [x] T019 [US1] backend/src/InvoiceApp.Api/Controllers/ApprovalsController.cs: pass `new Approver(session.Username, session.Role)`; no role filter on Approve; `[RequireRole("Manager", "Director", "Admin")]` on Reject only
+- [x] T020 [US1] Demo users demo.manager, demo.director, demo.director2, demo.admin in backend/src/InvoiceApp.Api/appsettings.json; seed `DecidedBy` demo.approver → demo.manager in InMemoryInvoiceRepository.cs; demo accounts in README.md and AGENTS.md
 
 **Checkpoint**: All tests green → commit `feat(approvals): enforce single-approver limits by role`.
 
