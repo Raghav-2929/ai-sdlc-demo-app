@@ -2,18 +2,30 @@
 // Claude Code SessionStart hook. Logs the session start and hands the agent a short,
 // always-current briefing: branch, active Spec Kit feature, and the checks it must hold.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { appendLog, buildLogRecord, currentBranch, projectDir, readHookInput } from './lib/common.mjs';
 
 const input = readHookInput();
 appendLog(buildLogRecord({ input, event: 'SessionStart', actor: 'system', agent: input.agent_type || 'main', summary: `Session ${input.source || 'start'}${input.model ? ` (${input.model})` : ''}` }));
 
-let featureDirectory = null;
-try {
-  featureDirectory = JSON.parse(readFileSync(join(projectDir(), '.specify', 'feature.json'), 'utf8')).feature_directory;
-} catch {
-  // No active Spec Kit feature yet.
+const featureDirectory = activeFeatureDirectory();
+
+/** Spec Kit's per-checkout pointer (.specify/feature.json, git-ignored), else the highest-numbered specs/ folder. */
+function activeFeatureDirectory() {
+  try {
+    return JSON.parse(readFileSync(join(projectDir(), '.specify', 'feature.json'), 'utf8')).feature_directory;
+  } catch {
+    try {
+      const features = readdirSync(join(projectDir(), 'specs'), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && /^\d{3}-/.test(entry.name))
+        .map((entry) => entry.name)
+        .sort();
+      return features.length ? `specs/${features[features.length - 1]}` : null;
+    } catch {
+      return null;
+    }
+  }
 }
 
 const briefing = [
