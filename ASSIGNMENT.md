@@ -5,7 +5,7 @@
 | | Link |
 | --- | --- |
 | Demo video (8–10 min) | VIDEO_LINK_HERE |
-| Pull request (on my fork) | PR_LINK_HERE |
+| Pull request (on my fork) | [Raghav-2929/ai-sdlc-demo-app#1](https://github.com/Raghav-2929/ai-sdlc-demo-app/pull/1) — 10 commits, CI green (53 tests) |
 | Specification | [`specs/001-role-approval-limits/`](specs/001-role-approval-limits/spec.md) |
 | PR description with review verdicts | [`docs/PR_DESCRIPTION.md`](docs/PR_DESCRIPTION.md) |
 | AI interaction log | [`ai-logs/ai-interactions.jsonl`](ai-logs/ai-interactions.jsonl) · readable: [`ai-logs/AI_INTERACTIONS.md`](ai-logs/AI_INTERACTIONS.md) |
