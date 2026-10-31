@@ -1,0 +1,5 @@
+#!/bin/sh
+# Git commit-msg hook: the same commit format check the Claude Code guard uses,
+# so commits from people, Copilot or any other agent land in one format.
+# Enable once per clone:  git config core.hooksPath .githooks
+exec node "$(git rev-parse --show-toplevel)/.githooks/check-commit-message.mjs" "$1"

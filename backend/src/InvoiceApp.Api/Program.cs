@@ -22,3 +22,6 @@ app.UseMiddleware<SessionAuthMiddleware>();
 app.MapControllers();
 
 app.Run();
+
+/// <summary>Lets the API tests start the app in memory with WebApplicationFactory&lt;Program&gt;.</summary>
+public partial class Program { }
