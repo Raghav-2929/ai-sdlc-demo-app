@@ -4,8 +4,8 @@
 
 | | Link |
 | --- | --- |
-| Demo video (8–10 min) | VIDEO_LINK_HERE |
-| Pull request (on my fork) | [Raghav-2929/ai-sdlc-demo-app#1](https://github.com/Raghav-2929/ai-sdlc-demo-app/pull/1) — 10 commits, CI green (53 tests) |
+| Demo video (8–10 min) | [Watch on Microsoft Stream (Nagarro sign-in)](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) |
+| Pull request (on my fork) | [Raghav-2929/ai-sdlc-demo-app#1](https://github.com/Raghav-2929/ai-sdlc-demo-app/pull/1) — CI green (53 tests) |
 | Specification | [`specs/001-role-approval-limits/`](specs/001-role-approval-limits/spec.md) |
 | PR description with review verdicts | [`docs/PR_DESCRIPTION.md`](docs/PR_DESCRIPTION.md) |
 | AI interaction log | [`ai-logs/ai-interactions.jsonl`](ai-logs/ai-interactions.jsonl) · readable: [`ai-logs/AI_INTERACTIONS.md`](ai-logs/AI_INTERACTIONS.md) |
@@ -69,7 +69,7 @@ All six were tested with simulated events (pass and block paths, Windows paths, 
 | 1 — single-approver limits (AL-1, AL-2, AL-5, AL-6) | `c650ef0 feat(approvals): enforce single-approver limits by role` | 8 failing / 9 passing → 26 passing |
 | 2 — two distinct approvers above 500,000 (AL-3, AL-4) | `7881efa feat(approvals): require two distinct approvers above 500,000` | 11 failing / 30 passing → 41 passing |
 
-Each message says what changed and `Why:`. The branch has ten commits; every one was checked out alone in a clean worktree and builds and passes its own tests (7, 7, 26, 41, 41, 45, 45, 46, 53, 53):
+Each message says what changed and `Why:`. The work is ten commits; every one was checked out alone in a clean worktree and builds and passes its own tests (7, 7, 26, 41, 41, 45, 45, 46, 53, 53). Two last commits only add the PR and video links and refresh the AI log:
 
 ```text
 98cbe3f docs(agents): give a cold agent the rules, layers, tools and checks
@@ -81,7 +81,9 @@ ae795b6 test(approvals): kill every mutant Stryker found surviving
 e85d814 fix(hooks): mask secrets inside JSON output and catch every commit form   <- review R1, R4
 9a43a47 fix(review): prove "still pending" from the server and close test gaps    <- review R2, R3, R5-R7
 b6112ac test(api): cover the approvals HTTP contract with the app in memory       <- review note N1
-(last)  docs(assignment): write-up, PR description, review record and AI log
+1c70038 docs(assignment): add write-up, review verdicts and AI interaction log
+4ee6452 docs(assignment): add pull request link and refresh AI log
+(last)  docs(assignment): add demo video link and refresh AI log
 ```
 
 ### 3.6 Tests that mean something
@@ -207,4 +209,4 @@ Demo accounts and the click-through are in [`AGENTS.md`](AGENTS.md) and [`quicks
 
 ## 8. Demo video
 
-VIDEO_LINK_HERE — 8–10 minutes; unit tests, the Stryker run and the Playwright test run live on screen.
+[Watch the demo video on Microsoft Stream](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) (Nagarro sign-in). 8–10 minutes; the commit hook, the unit tests (with a bug injected live), the Stryker mutation run and the Playwright test all run live on screen.

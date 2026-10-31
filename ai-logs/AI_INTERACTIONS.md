@@ -1,22 +1,22 @@
 # AI interaction log
 
-Generated from `ai-logs/ai-interactions.jsonl` (589 records, schema `ai-log/v1`).
+Generated from `ai-logs/ai-interactions.jsonl` (609 records, schema `ai-log/v1`).
 Every line in the JSONL file has the same fields: `ts, source, session_id, event, actor, agent, tool, summary, detail, outcome, branch`.
 
 ## Totals
 
 | Event | Count |
 | --- | ---: |
-| PostToolUse | 440 |
-| AssistantMessage | 113 |
-| UserPromptSubmit | 21 |
+| PostToolUse | 454 |
+| AssistantMessage | 118 |
+| UserPromptSubmit | 22 |
 | PostToolUseFailure | 8 |
 | SubagentStart | 6 |
 | SessionStart | 1 |
 
 | Agent | Count |
 | --- | ---: |
-| main | 454 |
+| main | 474 |
 | claude-code-guide | 50 |
 | code-reviewer | 28 |
 | spec-writer | 27 |
@@ -25,14 +25,14 @@ Every line in the JSONL file has the same fields: `ts, source, session_id, event
 
 | Outcome | Count |
 | --- | ---: |
-| ok | 581 |
+| ok | 601 |
 | error | 8 |
 
 ## Session `776591cd-93ab-4cd6-9000-5f130b7f6667`
 
 Build of the approval-limits feature: Claude Code desktop session (Opus) opened in the parent folder, so the repo hooks were not loaded; transcript imported with scripts/ai-log/export-transcript.mjs
 
-2026-10-18T05:37:38.700Z → 2026-10-31T19:51:52.368Z · 589 records · source: transcript-export
+2026-10-18T05:37:38.700Z → 2026-10-31T20:50:22.549Z · 609 records · source: transcript-export
 
 - 2026-10-18 05:37:38 · `main` · SessionStart · Build of the approval-limits feature: Claude Code desktop session (Opus) opened in the parent folder, so the repo hooks were not loaded; transcript imported with scripts/ai-log/export-transcript.mjs
 
@@ -937,4 +937,38 @@ Build of the approval-limits feature: Claude Code desktop session (Opus) opened 
 **2026-10-31 19:51:51 · Agent:** Next I'll refresh the AI log. Only records not already in the log are added, then I'll scan the result for secrets and emails.
 
 - 2026-10-31 19:51:52 · `main` · PostToolUse · mcp__ccd_turn__update_plan: {"advance":true}
+- 2026-10-31 19:52:55 · `main` · PostToolUse · Bash: cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/ai-sdlc-demo-app" T="$USERPROFILE/.claude/projects/C--Users-raghavagarwal-OneDrive---Nagarro-Raghav-Agarwal-3216826-AI-IN-S
+- 2026-10-31 19:53:07 · `main` · PostToolUse · Bash: cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/ai-sdlc-demo-app" && python - <<'PYEOF' import json, re rs = [json.loads(l) for l in open("ai-logs/ai-interactions.jsonl", 
+- 2026-10-31 19:53:13 · `main` · PostToolUse · mcp__ccd_turn__update_plan: {"advance":true}
+- 2026-10-31 19:53:32 · `main` · PostToolUse · Bash: cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/ai-sdlc-demo-app" git add ASSIGNMENT.md ai-logs/ai-interactions.jsonl ai-logs/AI_INTERACTIONS.md 2>&1 \| grep -v "LF will" 
+
+**2026-10-31 19:53:35 · Agent:** Pushed. I'll confirm PR #1 picked it up and that CI is running on the new commit.
+
+- 2026-10-31 19:53:39 · `main` · PostToolUse · Bash: curl -s "https://api.github.com/repos/Raghav-2929/ai-sdlc-demo-app/pulls/1" \| python -c " import json,sys; p=json.load(sys.stdin); print('PR #1:', p['state'], '\| commits:', p['commits'], '\| head:', p['head']['sh
+- 2026-10-31 19:53:45 · `main` · PostToolUse · Bash: curl -s -i "https://api.github.com/repos/Raghav-2929/ai-sdlc-demo-app/pulls/1" \| grep -iE "^HTTP\|x-ratelimit-remaining\|\"message\"" \| head -4; cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_321682
+- 2026-10-31 19:53:49 · `main` · PostToolUse · mcp__ccd_turn__wrap_up: {"recap":"The PR link is in ASSIGNMENT.md and the AI log is refreshed (589 records, no secrets or emails). Both are pushed as commit 4ee6452, now the 11th commit in PR #1. Not checked from here: t
+
+**2026-10-31 19:53:54 · Agent:** The PR link is added and pushed: - **`ASSIGNMENT.md`** now links to [Raghav-2929/ai-sdlc-demo-app#1](https://github.com/Raghav-2929/ai-sdlc-demo-app/pull/1). - **AI log refreshed:** 113 new interactions since the last ex
+
+### 2026-10-31 20:49:21 · Prompt
+
+> this is video link add it - https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
+> 
+> check the access
+
+**2026-10-31 20:49:33 · Agent:** I'll check how the video link behaves for someone who isn't signed in, then add it to `ASSIGNMENT.md` and push.
+
+- 2026-10-31 20:49:34 · `main` · PostToolUse · mcp__ccd_turn__update_plan: {"items":[{"content":"Check the video link's access","status":"in_progress"},{"content":"Add video link to ASSIGNMENT.md","status":"pending"},{"content":"Refresh AI log, commit, push","status"
+- 2026-10-31 20:49:49 · `main` · PostToolUse · Bash: FULL='https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURp
+- 2026-10-31 20:49:58 · `main` · PostToolUse · mcp__ccd_turn__update_plan: {"advance":true}
+- 2026-10-31 20:50:05 · `main` · PostToolUse · Bash: cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/ai-sdlc-demo-app" && python - <<'PYEOF' import pathlib link = "https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5
+
+**2026-10-31 20:50:09 · Agent:** Line 8 still says "10 commits", but the PR will have 12 after this push. I'll fix that and the commit list in section 3.5 so the write-up stays accurate.
+
+- 2026-10-31 20:50:11 · `main` · PostToolUse · Grep: ten commits\|\(last\) docs\(assignment\)\|10 commits in C:\Users\raghavagarwal\OneDrive - Nagarro\Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment\ai-sdlc-demo-app\ASSIGNMENT.md
+- 2026-10-31 20:50:20 · `main` · PostToolUse · Bash: cd "/c/Users/raghavagarwal/OneDrive - Nagarro/Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/ai-sdlc-demo-app" && python - <<'PYEOF' import pathlib p = pathlib.Path("ASSIGNMENT.md"); t = p.read_text(encoding="utf-8")
+
+**2026-10-31 20:50:22 · Agent:** Next I'll refresh the AI log, then commit and push.
+
+- 2026-10-31 20:50:22 · `main` · PostToolUse · mcp__ccd_turn__update_plan: {"advance":true}
 
