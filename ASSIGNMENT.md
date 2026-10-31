@@ -4,7 +4,7 @@
 
 | | Link |
 | --- | --- |
-| Demo video (8–10 min) | [Watch on Microsoft Stream (Nagarro sign-in)](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) |
+| Demo video | [Watch on Microsoft Stream (Nagarro sign-in)](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) · MP4 file: `videoAI_IN_SDLD_3216826.mp4` in the submission folder, next to this repository |
 | Pull request (on my fork) | [Raghav-2929/ai-sdlc-demo-app#1](https://github.com/Raghav-2929/ai-sdlc-demo-app/pull/1) — CI green (53 tests) |
 | Specification | [`specs/001-role-approval-limits/`](specs/001-role-approval-limits/spec.md) |
 | PR description with review verdicts | [`docs/PR_DESCRIPTION.md`](docs/PR_DESCRIPTION.md) |
@@ -209,4 +209,7 @@ Demo accounts and the click-through are in [`AGENTS.md`](AGENTS.md) and [`quicks
 
 ## 8. Demo video
 
-[Watch the demo video on Microsoft Stream](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) (Nagarro sign-in). 8–10 minutes; the commit hook, the unit tests (with a bug injected live), the Stryker mutation run and the Playwright test all run live on screen.
+- **Online:** [Watch the demo video on Microsoft Stream](https://nagarro-my.sharepoint.com/:v:/p/raghav_agarwal/IQCz5tWoPVO1Q79jp6DJ0ttEATrmPaZZwAy0uqxN1_ArIuA?e=wQpwRR) (Nagarro sign-in).
+- **File:** the same recording is included as `videoAI_IN_SDLD_3216826.mp4` in the submission folder (`Raghav_Agarwal_3216826_AI_IN_SDLC_Assignment/videoAI_IN_SDLD_3216826.mp4`), next to this repository. It is kept out of git because it is 333 MB, above GitHub's 100 MB file limit.
+
+In the video the commit hook, the unit tests (with a bug injected live), the Stryker mutation run and the Playwright test all run live on screen.
